@@ -13,9 +13,6 @@ add_action('rest_api_init', function () {
 
 function blockonomics_webhook_handler(WP_REST_Request $request) {
     try {
-        // Get the request body
-        // $request_body = file_get_contents('php://input');
-        // $data = json_decode($request_body, true);
         
         $addr = $request['addr'];
         $status = $request['status'];
@@ -23,14 +20,11 @@ function blockonomics_webhook_handler(WP_REST_Request $request) {
         $headers = array(
             'Authorization' => 'Bearer GfICmDTEuNjg9qDetQzp8XqSHGRhSRZOyKPDv2pxam8',
         );
-        // Extract relevant information from the webhook payload
-        // $payment_status = $data['status'];
-        // $bitcoin_address = $data['addr'];
-        // $user_email = $data['email'];
+
         $response = wp_remote_get('https://www.blockonomics.co/api/merchant_order/09bfe5cd11c248cda211', array(
            'headers' => $headers,    
         ));
-        $body = "11111111111";
+
         if (is_wp_error($response)) {
             // Handle error
             echo 'Error: ' . $response->get_error_message();
