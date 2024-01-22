@@ -14,29 +14,31 @@ add_action('rest_api_init', function () {
 function blockonomics_webhook_handler(WP_REST_Request $request) {
     try {
         
+        $Blockonomics_API_Key = 'GfICmDTEuNjg9qDetQzp8XqSHGRhSRZOyKPDv2pxam8';
         $addr = $request['addr'];
         $status = $request['status'];
         $uuid = $request['uuid'];
         $headers = array(
-            'Authorization' => 'Bearer GfICmDTEuNjg9qDetQzp8XqSHGRhSRZOyKPDv2pxam8',
+            'Authorization' => 'Bearer '.$Blockonomics_API_Key,
         );
 
-        $response = wp_remote_get('https://www.blockonomics.co/api/merchant_order/09bfe5cd11c248cda211', array(
-           'headers' => $headers,    
-        ));
-
-        if (is_wp_error($response)) {
-            // Handle error
-            echo 'Error: ' . $response->get_error_message();
-        } else {
-            // Process the response
-            $body = wp_remote_retrieve_body($response);
-            $decoded_response = json_decode($body, true);
-            $user_email =  $decoded_response['data']['emailid'];
-            $membership_level_name = $decoded_response['name'];
-            add_user_to_membership_level($user_email, $membership_level_name);
+        if($status == 2) {
+            $response = wp_remote_get('https://www.blockonomics.co/api/merchant_order/'.$uuid, array(
+               'headers' => $headers,    
+            ));
+            
+            if (is_wp_error($response)) {
+                // Handle error
+                echo 'Error: ' . $response->get_error_message();
+            } else {
+                // Process the response
+                $body = wp_remote_retrieve_body($response);
+                $decoded_response = json_decode($body, true);
+                $user_email =  $decoded_response['data']['emailid'];
+                $membership_level_name = $decoded_response['name'];
+                add_user_to_membership_level($user_email, $membership_level_name);
+            }
         }
-        
        
     } catch (Exception $e) {
         // Send an error response
@@ -51,7 +53,7 @@ function add_user_to_membership_level($user_email, $membership_level_name) {
     // Get user ID by email
     $user = get_user_by('email', $user_email);
     $user_id = $user->ID;
-
+    
     // Set the membership level ID you want to assign to the user
     $startdate = date('Y-m-d');
     if($membership_level_name == "Diamond Plan"){
